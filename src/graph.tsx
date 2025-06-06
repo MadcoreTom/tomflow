@@ -1,6 +1,7 @@
 import React from "react"
+import { PannableSvg } from "./pannable-svg"
 
-export type NodeData = {
+export interface NodeData {
     id: string
 }
 
@@ -11,7 +12,13 @@ export type GraphProps<T extends NodeData> = {
     nodeElement: React.FunctionComponent<{ data: T }>
 }
 
-export function Graph<T extends NodeData>(props: GraphProps<T>) {
+export function Graph<T extends NodeData>(props: GraphProps<T>): React.ReactElement<T> {
+    return <PannableSvg fullSize={true}>
+        <GraphInner  {...props} />
+    </PannableSvg>
+}
+
+function GraphInner<T extends NodeData>(props: GraphProps<T>) {
 
     type RichNode = T & {
         x: number,

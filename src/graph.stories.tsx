@@ -1,16 +1,14 @@
 
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 
-import { PannableSvg } from './pannable-svg';
-import React from 'react';
 import { Graph } from './graph';
+import { CircleNode, CircleNodeDataType } from './nodes/circle';
 
 const meta = {
     title: "Graph Examples",
-    component: PannableSvg,
-    // tags: ['autodocs'],
+    component: Graph,
 
-} satisfies Meta<typeof PannableSvg>;
+} satisfies Meta<typeof Graph>;
 
 export default meta;
 
@@ -18,85 +16,52 @@ type Story = StoryObj<typeof meta>;
 
 /// Stories below
 
-type DataType = {
-    id: string,
-    name: string
-}
-const Circle: React.FunctionComponent<{ data: DataType }> = (props: { data: { name: string, id: string } }) => {
-    return <g>
-        <circle cx={0} cy={0} r={10} /><text y={30}>{props.data.name}</text>
-    </g>;
-}
-const nodes: DataType[] = [
-    { name: "tom", id: "T" },
-    { name: "rachel", id: "R" },
-    { name: "henry", id: "H" }
-]
+
+const nodes: CircleNodeDataType[] = [
+    { name: "begin", id: "A" },
+    { name: "path1", id: "B1" },
+    { name: "path2", id: "B2" },
+    { name: "end", id: "C" }
+];
 
 export const GraphExample: Story = {
-
-
-
     args: {
-        children: <Graph edges={[["T","H"],["R","H"]]} nodeData={nodes} nodeElement={Circle} />,
-        fullSize: true
-    }
-};
-const moreNodes: DataType[] = [
-    { name: "tom", id: "T" },
-    { name: "rachel", id: "R" },
-    { name: "henry", id: "H" },
-    { name: "mum", id: "M" },
-    { name: "dad", id: "D" },
-    { name: "chris", id: "C" },
-    { name: "nads", id: "N" }
-]
-
-
-export const bigExample: Story = {
-
-
-
-    args: {
-        children: <Graph edges={[["T", "H"], ["R", "H"], ["N", "R"], ["C", "R"], ["M", "T"], ["D", "T"]]} nodeData={moreNodes} nodeElement={Circle} />,
-        fullSize: true
+        nodeData: nodes,
+        edges: [["A", "B1"], ["A", "B2"], ["B1", "C"], ["B2", "C"]],
+        nodeElement: CircleNode as any
     }
 };
 
 
-const loopData: DataType[] = [
-    { name: "Scissors", id: "S" },
-    { name: "Paper", id: "P" },
-    { name: "Rock", id: "R" },
-]
+const nodes2: CircleNodeDataType[] = [
+    { name: "Scissors", id: "S", color: "green" },
+    { name: "Paper", id: "P", color: "red" },
+    { name: "Rock", id: "R", color: "blue" },
+];
 
-
-export const loopExample: Story = {
-
-
-
+export const CyclicExample: Story = {
     args: {
-        children: <Graph edges={[["S","P"],["P","R"],["R","S"]]} nodeData={loopData} nodeElement={Circle} />,
-        fullSize: true
+        nodeData: nodes2,
+        edges: [["S","P"],["P","R"],["R","S"]],
+        nodeElement: CircleNode as any 
     }
 };
 
 
-const loop2Data: DataType[] = [
-    { name: "Scissors", id: "S" },
-    { name: "Paper", id: "P" },
-    { name: "Rock", id: "R" },
-    { name:"End", id:"E"},
-    { name:"Start", id:"start"}
-]
 
+const nodes3: CircleNodeDataType[] = [
+    { name: "begin", id: "A", color:"green" },
+    { name: "Scissors", id: "S", color: "green" },
+    { name: "Paper", id: "P", color: "red" },
+    { name: "Rock", id: "R", color: "blue" },
+    { name: "end1", id: "C1", color:"red" },
+    { name: "end2", id: "C2", color:"red" }
+];
 
-export const loop2Example: Story = {
-
-
-
+export const TrickyExample: Story = {
     args: {
-        children: <Graph edges={[["S","P"],["P","R"],["R","S"], ["S","E"], ["start","R"]]} nodeData={loop2Data} nodeElement={Circle} />,
-        fullSize: true
+        nodeData: nodes3,
+        edges: [["A","S"],["S","P"],["P","R"],["R","S"],["P","C1"],["R","C2"]],
+        nodeElement: CircleNode as any 
     }
 };
