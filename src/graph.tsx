@@ -19,82 +19,18 @@ export function Graph<T extends NodeData>(props: GraphProps<T>): React.ReactElem
 }
 
 function GraphInner<T extends NodeData>(props: GraphProps<T>) {
+    const richNodes = solveGraph(props.nodeData, props.edges);
 
-    type RichNode = T & {
-        x: number,
-        y: number,
-        in: string[],
-        out: string[],
-        idx: number
-    }
-
-    const richNodes: RichNode[] = props.nodeData.map((d, i) => ({
-        ...d,
-        x: 0, y: 0, idx: i,
-        out: props.edges.filter(e => e[0] == d.id).map(e => e[1]),
-        in: props.edges.filter(e => e[1] == d.id).map(e => e[0])
-    }));
-
-    const richNodeMap = richNodes.reduce((b, a) => { b[a.id] = a; return b; }, {} as { [id: string]: RichNode });
-
-    const rank: number[][] = [richNodes.map(() => 1)];
-
-    // Loops work best if they match max start-to-end distance
-    for (let i = 0; i < 10; i++) {
-        // copy
-        rank.push([...rank[i]]);
-        // accumulate the previuous rank value for each "in" link
-        richNodes.forEach((r, j) => {
-            r.in.forEach(a => {
-                rank[i + 1][j] += rank[i][richNodeMap[a].idx];
-            });
-        });
-    }
-
-    console.log("RANK", rank[rank.length - 1]);
-
-    richNodes.forEach((r, i) => r.x = rank[rank.length - 1][i]);
-
-    // then map them to consecutive x values
-    const sortedRichNodes = [...richNodes].sort((a, b) => a.x - b.x);
-    const xMap: number[] = [];
-    let xMapCount = 0;
-    for (let i = 0; i < sortedRichNodes.length; i++) {
-        if (i == 0) {
-            xMap[sortedRichNodes[i].x] = xMapCount;
-        }
-        else if (sortedRichNodes[i].x > sortedRichNodes[i - 1].x) {
-            xMapCount++;
-            xMap[sortedRichNodes[i].x] = xMapCount;
-        }
-    }
-    console.log("XMAP", JSON.stringify(xMap));
-
-    // apply x mapping
-    const nodeWidth = 100;
-    sortedRichNodes.forEach(n => {
-        n.x = nodeWidth / 2 + nodeWidth * xMap[n.x];
+    // fit on screen
+    const minX = richNodes.map(n => n.x).sort()[0]; // TODO don't sort everything, don't be lazy
+    const minY = richNodes.map(n => n.y).sort()[0]; // TODO don't sort everything, don't be lazy
+    richNodes.forEach(n => {
+        n.x -= minX;
+        n.y -= minY;
     })
 
-    // Sort out y
-    let nodeHeight = 50;
-    sortedRichNodes.reverse().forEach(n => {
-        const col = n.x / nodeWidth;
-        const nh = nodeHeight * Math.pow(2, col); // reduce node height (only works with clear heirarchies)
-        const len = n.in.length;
-        let y = n.y - ((len - 1) / 2) * nh;
-        n.in.forEach(name => {
-            richNodeMap[name].y = y;
-            y += nh;
-        });
-    });
-    sortedRichNodes.reverse();// flip it back
-    console.log("Y", sortedRichNodes.map(n => [n.x, n.y]));
-    // then make the  y fit on screen
-    const minY = richNodes.map(n => n.y).sort()[0]; // TODO don't sort everything, don't be lazy
-    richNodes.forEach(n => n.y -= minY - nodeHeight / 2);
-
     // edges
+    const richNodeMap = richNodes.reduce((b, a) => { b[a.data.id] = a; return b; }, {} as { [id: string]: RichNode<T> });
     const edges = props.edges.map(e => {
         const sx = richNodeMap[e[0]].x;
         const sy = richNodeMap[e[0]].y;
@@ -103,9 +39,8 @@ function GraphInner<T extends NodeData>(props: GraphProps<T>) {
         return <path d={`M${sx} ${sy} L${ex} ${ey}`} stroke="blue" />
     })
 
-
-    const nodes = sortedRichNodes.map(n => <g transform={`translate(${n.x},${n.y})`}>
-        {React.createElement(props.nodeElement, { data: n })}
+    const nodes = richNodes.map(n => <g transform={`translate(${n.x},${n.y})`} key={n.data.id}>
+        {React.createElement(props.nodeElement, { data: n.data })}
     </g>)
     return <g>
         {edges}
@@ -113,3 +48,37 @@ function GraphInner<T extends NodeData>(props: GraphProps<T>) {
     </g>
 }
 
+type RichNode<T extends NodeData> = {
+    x: number,
+    y: number,
+    id: string,
+    in: string[],
+    out: string[],
+    idx: number,
+    data: T
+}
+
+function solveGraph<T extends NodeData>(nodes: T[], edges: [string, string][]): RichNode<T>[] {
+
+    const richNodes: RichNode<T>[] = nodes.map((d, i) => ({
+        data: d, idx: i, id: d.id,
+        x: 0, y: 0,
+        out: edges.filter(e => e[0] == d.id).map(e => e[1]),
+        in: edges.filter(e => e[1] == d.id).map(e => e[0])
+    }));
+
+    const richNodeMap = richNodes.reduce((b, a) => { b[a.id] = a; return b; }, {} as { [id: string]: RichNode<T> });
+
+    richNodes.forEach(n => {
+        n.x = Math.random() * 500;
+        n.y = Math.random() * 500;
+    })
+
+    // TODO find nodes with no "in" and set column to 1
+    // then set their "out" notes column to 2 (unless already set)
+    // then continue
+
+    // assumes connected set
+    // if no nodes with no "in" then pick one with a low "in" count
+    return richNodes;
+}
