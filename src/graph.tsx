@@ -70,13 +70,30 @@ function solveGraph<T extends NodeData>(nodes: T[], edges: [string, string][]): 
     const richNodeMap = richNodes.reduce((b, a) => { b[a.id] = a; return b; }, {} as { [id: string]: RichNode<T> });
 
     richNodes.forEach(n => {
-        n.x = Math.random() * 500;
+        n.x = -1;
         n.y = Math.random() * 500;
     })
 
     // TODO find nodes with no "in" and set column to 1
     // then set their "out" notes column to 2 (unless already set)
     // then continue
+    let cur = richNodes.filter(n=>n.in.length == 0);
+    if(cur.length == 0){
+        // TODO pick one with low "in.length" at least
+        cur = [richNodes[0]];
+    }
+
+    let depth = 0;
+    while(cur.length > 0){
+        console.log("LOOP", cur.map(c=>c.id))
+        let next:RichNode<T>[] = [];
+        cur.forEach(c=>{
+            c.x = depth;
+            c.out.map(o=>richNodeMap[o]).filter(o=>o.x <0).forEach(o=>next.push(o));
+        });
+        depth += 110; // TODO node x spacing
+        cur = next;
+    }
 
     // assumes connected set
     // if no nodes with no "in" then pick one with a low "in" count
