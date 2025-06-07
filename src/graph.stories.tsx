@@ -42,7 +42,7 @@ const nodes2: CircleNodeDataType[] = [
 export const CyclicExample: Story = {
     args: {
         nodeData: nodes2,
-        edges: [["S","P"],["P","R"],["R","S"]],
+        edges: [["S","P","Cuts"],["P","R","Covers"],["R","S","Smashes"]],
         nodeElement: CircleNode as any 
     }
 };

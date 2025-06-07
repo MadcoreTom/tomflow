@@ -8,7 +8,7 @@ export interface NodeData {
 
 export type GraphProps<T extends NodeData> = {
     nodeData: T[],
-    edges: [string, string][],
+    edges: [string, string, string?][],
     nodeElement: React.FunctionComponent<{ data: T }>
 }
 
@@ -39,12 +39,20 @@ function GraphInner<T extends NodeData>(props: GraphProps<T>) {
         return <path d={`M${sx} ${sy} L${ex} ${ey}`} stroke="blue" />
     })
 
+    // labels
+    const labels = props.edges.filter(e=>e[2] != undefined).map(e=>{
+        const x = (richNodeMap[e[0]].x + richNodeMap[e[1]].x)/2;
+        const y = (richNodeMap[e[0]].y + richNodeMap[e[1]].y)/2;
+        return <text textAnchor="middle" alignmentBaseline="central" fontFamily={"Helvetica, sans-serif"} x={x} y={y}>{e[2]}</text>
+    })
+
     const nodes = richNodes.map(n => <g transform={`translate(${n.x},${n.y})`} key={n.data.id}>
         {React.createElement(props.nodeElement, { data: n.data })}
     </g>)
     return <g>
         {edges}
         {nodes}
+        {labels}
     </g>
 }
 
@@ -58,7 +66,7 @@ type RichNode<T extends NodeData> = {
     data: T
 }
 
-function solveGraph<T extends NodeData>(nodes: T[], edges: [string, string][]): RichNode<T>[] {
+function solveGraph<T extends NodeData>(nodes: T[], edges: [string, string, string?][]): RichNode<T>[] {
 
     const richNodes: RichNode<T>[] = nodes.map((d, i) => ({
         data: d, idx: i, id: d.id,
@@ -91,11 +99,26 @@ function solveGraph<T extends NodeData>(nodes: T[], edges: [string, string][]): 
             c.x = depth;
             c.out.map(o=>richNodeMap[o]).filter(o=>o.x <0).forEach(o=>next.push(o));
         });
-        depth += 110; // TODO node x spacing
+        depth += 150; // TODO node x spacing
         cur = next;
     }
 
     // assumes connected set
     // if no nodes with no "in" then pick one with a low "in" count
+
+
+    // 
+    // Sort out y
+    //
+
+    const richNodesByConnections = [...richNodes].sort((b,a)=>a.in.length + a.out.length - b.in.length - b.out.length);
+    console.log("Con", richNodesByConnections.map(n=>n.id));
+
+    const column :{[id:number]:number} = {};
+    for(let n of richNodesByConnections){
+        const col = column[n.x] || 0;
+        column[n.x] = col+1;
+        n.y = 150 * col; // TODO node y spacing
+    }
     return richNodes;
 }
