@@ -120,5 +120,10 @@ function solveGraph<T extends NodeData>(nodes: T[], edges: [string, string, stri
         column[n.x] = col+1;
         n.y = 150 * col; // TODO node y spacing
     }
+
+    // todo draw all edges
+    // todo test all edges against all nodes (distance to line) except the start and end
+    // move whole column of nodes down from there, and retest
+
     return richNodes;
 }

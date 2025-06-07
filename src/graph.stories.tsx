@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 
 import { Graph } from './graph';
 import { CircleNode, CircleNodeDataType } from './nodes/circle';
+import { WorkflowNode, WorkflowNodeDataType } from './nodes/workflow';
 
 const meta = {
     title: "Graph Examples",
@@ -21,13 +22,14 @@ const nodes: CircleNodeDataType[] = [
     { name: "begin", id: "A" },
     { name: "path1", id: "B1" },
     { name: "path2", id: "B2" },
-    { name: "end", id: "C" }
+    { name: "end", id: "C" },
+    { name: "end2", id: "C2" }
 ];
 
 export const GraphExample: Story = {
     args: {
         nodeData: nodes,
-        edges: [["A", "B1"], ["A", "B2"], ["B1", "C"], ["B2", "C"]],
+        edges: [["A", "B1"], ["A", "B2"], ["B1", "C"], ["B2", "C"], ["B1","C2"]],
         nodeElement: CircleNode as any
     }
 };
@@ -63,5 +65,21 @@ export const TrickyExample: Story = {
         nodeData: nodes3,
         edges: [["A","S"],["S","P"],["P","R"],["R","S"],["P","C1"],["R","C2"]],
         nodeElement: CircleNode as any 
+    }
+};
+
+const nodes4: WorkflowNodeDataType[] = [
+    { name: "Begin", id:"1", type:"start"},
+    { name: "Eat Food", id:"2", type:"action"},
+    { name: "Thirsty?", id:"3", type:"decision"},
+    { name: "Drink", id:"4", type:"action"},
+    { name: "End", id:"5", type:"end"}
+]
+
+export const Workflow: Story = {
+    args: {
+        nodeData: nodes4,
+        edges: [["1","2"],["2","3"],["3","4","yes"],["3","5","no"],["4","5"]],
+        nodeElement: WorkflowNode as any 
     }
 };
