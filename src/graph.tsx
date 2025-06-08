@@ -36,15 +36,26 @@ function GraphInner<T extends NodeData>(props: GraphProps<T>) {
         const sy = richNodeMap[e[0]].y;
         const ex = richNodeMap[e[1]].x;
         const ey = richNodeMap[e[1]].y;
-        return <path d={`M${sx} ${sy} L${ex} ${ey}`} stroke="blue" />
+        const x = (richNodeMap[e[0]].x + richNodeMap[e[1]].x)/2;
+        const y = (richNodeMap[e[0]].y + richNodeMap[e[1]].y)/2;
+        if(Math.abs(sx - ex) == 150){
+            return <>
+             <path d={`M${sx} ${sy} L${ex} ${ey}`} stroke="blue"  fill="transparent"/>
+             <text textAnchor="middle" alignmentBaseline="central" fontFamily={"Helvetica, sans-serif"} x={x} y={y}>{e[2]}</text>
+            </>
+        }
+            return <>
+            <path d={`M${sx} ${sy} l0 -75 L${ex} ${ey-75}  L${ex} ${ey}`} stroke="red" fill="transparent" />
+             <text textAnchor="middle" alignmentBaseline="central" fontFamily={"Helvetica, sans-serif"} x={x} y={y-75}>{e[2]}</text>
+            </>
     })
 
     // labels
-    const labels = props.edges.filter(e=>e[2] != undefined).map(e=>{
-        const x = (richNodeMap[e[0]].x + richNodeMap[e[1]].x)/2;
-        const y = (richNodeMap[e[0]].y + richNodeMap[e[1]].y)/2;
-        return <text textAnchor="middle" alignmentBaseline="central" fontFamily={"Helvetica, sans-serif"} x={x} y={y}>{e[2]}</text>
-    })
+    // const labels = props.edges.filter(e=>e[2] != undefined).map(e=>{
+    //     const x = (richNodeMap[e[0]].x + richNodeMap[e[1]].x)/2;
+    //     const y = (richNodeMap[e[0]].y + richNodeMap[e[1]].y)/2;
+    //     return <text textAnchor="middle" alignmentBaseline="central" fontFamily={"Helvetica, sans-serif"} x={x} y={y}>{e[2]}</text>
+    // })
 
     const nodes = richNodes.map(n => <g transform={`translate(${n.x},${n.y})`} key={n.data.id}>
         {React.createElement(props.nodeElement, { data: n.data })}
@@ -52,7 +63,7 @@ function GraphInner<T extends NodeData>(props: GraphProps<T>) {
     return <g>
         {edges}
         {nodes}
-        {labels}
+        {/* {labels} */}
     </g>
 }
 
