@@ -4,7 +4,7 @@ import React from 'react';
 import { WorkflowNode } from './workflow';
 
 const meta = {
-    title: "Workflow Node",
+    title: "Nodes/Workflow Node",
     component: WorkflowNode,
     render: args => <svg>
         <g transform='translate(50, 50)'>

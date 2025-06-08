@@ -25,8 +25,8 @@ function GraphInner<T extends NodeData>(props: GraphProps<T>) {
     const minX = richNodes.map(n => n.x).sort()[0]; // TODO don't sort everything, don't be lazy
     const minY = richNodes.map(n => n.y).sort()[0]; // TODO don't sort everything, don't be lazy
     richNodes.forEach(n => {
-        n.x -= minX;
-        n.y -= minY;
+        n.x -= minX - 75;
+        n.y -= minY - 80;
     })
 
     // edges

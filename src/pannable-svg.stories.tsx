@@ -4,7 +4,7 @@ import { PannableSvg } from './pannable-svg';
 import React from 'react';
 
 const meta = {
-    title: "Pannable SVG",
+    title: "Components/Pannable SVG",
     component: PannableSvg,
     tags: ['autodocs'],
 

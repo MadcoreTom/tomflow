@@ -4,7 +4,7 @@ import React from 'react';
 import { CircleNode } from './circle';
 
 const meta = {
-    title: "Circle Node",
+    title: "Nodes/Circle Node",
     component: CircleNode,
     render: args => <svg>
         <g transform='translate(50, 50)'>
